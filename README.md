@@ -27,3 +27,6 @@ Locked in with cell tower control around boooo
 So bored 
 
 Time for so Yi cause screw playing with a mouse 
+
+Digimon 4ever united as one
+talk about eating the wrong eggs to start with
