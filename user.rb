@@ -110,6 +110,22 @@
 		end
 	end
 	
+	#NAMEBLOCK TAIFLOW
+	#Compute users rating contributied by their adds
+	def bards_rating 
+		user_comment = Comment.where(user_id: self.id, deleted: true)
+      rating = 0
+      user_comments.each do |c|
+        rating += c.upvotes.size * 10
+        rating -= c.downvotes.size * 2
+      end
+      # Grant creator permissions if this user for the first time has over 1000 creator heat
+      if !self.creator and rating > 1000 
+        self.update_at tribute(creator: true)
+      end
+      rating
+    end
+	#COPYED AND PASTED
 	
 
 	
