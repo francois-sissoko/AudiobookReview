@@ -1,0 +1,17 @@
+class Product < ActiveRecord::Base
+	belongs_to :user, foreign_key: "user_id"
+  validates :name, presence: true
+  validates :description, presence: true
+  has_many :likes, as: :likeable, dependent: :destroy
+	has_many :feature_groups, dependent: :destroy
+  has_many :bounties, dependent: :destroy
+  has_many :comments, as: :commentable, dependent: :destroy
+	has_one :product_pic, class_name: "ImageAsset", foreign_key: "attachable_id", as: :attachable, autosave: true
+  accepts_nested_attributes_for :product_pic, allow_destroy: true
+	has_many :pictures, class_name: "ImageAsset", foreign_key: "attachable_id", as: :attachable, autosave: true
+  accepts_nested_attributes_for :pictures, allow_destroy: true
+  accepts_nested_attributes_for :feature_groups, allow_destroy: true
+  accepts_nested_attributes_for :comments, allow_destroy: true
+  attr_accessible :name, :description, :rating, :link, :likes, :video_url, :pictures, :active, :pictures_attributes, :product_pic, :hidden, :password, :access_list, feature_groups: [features: [:pictures]], likes: [:product_id, :user_id]
+  before_create :setup_feature_bounty_content
+  after_create :make_create_activity
