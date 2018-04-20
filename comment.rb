@@ -25,3 +25,41 @@ class Comment < ActiveRecord::Base
 	
 #Stopped At Looking if a Product/Comment was modified
 #Tokinizer, Coins, Chips
+
+def modified?
+	updated_at == created_at
+end
+
+def upvotes
+	like.where(up: true)
+end
+
+def downvotes
+	likes.where(up: false)
+end
+
+def path_to_reply #Used in the polymorphic url method
+	if self.commentable.class != Product
+		[self.commentable.product, self.commentable, self]
+	else 
+		[self.commentable, self ]
+	end
+end
+
+def path_to_delete
+	path_to_reply
+end
+
+def reply #Used in the reply form
+	parent_comment = self.parent.path_to_reply
+	parent_comment.pop
+	parent_comment << self
+end
+
+private
+
+def make_comment_activity
+	Activity.create(timestamp: Time.now, user_id: self.user_id, activity_type: :comment, resource_type:
+	commentable.class.name.downcase, rosource_id: commentable_id)	
+	end
+end
