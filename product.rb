@@ -129,3 +129,35 @@ class Product < ActiveRecord::Base
   
   #Stopped Here for the night 
   
+  def embed_video
+	vid_host = self.video_url.sub(/^https?\:\/\//, '').sub(/^www./,'').split('/')[0]
+	if vid_host == 'youtube.com' or vid_host == 'youtu.be'
+		youtube_embed(self.video_url)
+	elsif vid_host == 'player.vimeo.com' or vid_host == 'vimeo.com'
+		vimeo_embed(self.video_url)
+	end
+  end
+  
+  def video_thumb
+	vid_host = self.video_url.sub(/^https?\:\/\//,'').sub(/^www./,'').split('/')[0]
+	if vid_host == 'youtube.com' or vid_host == 'youtu.be'
+		youtube_thumbnail(self.video_url)
+	elsif vid_host == 'player.vimeo.com' or vid_host == 'vimeo.com'
+		vimeo_thumbnail(self.video_url)
+	end
+  end
+  
+  #Might want to update this to HTML5 and JS completely 
+  def youtube_embed(youtube_url)
+	if youtube_url[/youtu\.be\/([^\?*)/]
+		youtube_id = $1
+	else 
+	# Regex from # http://stackoverflow.com/questions/3452546/javascript-regex-how-to-get-youtube-video-id-from-url/4811367#4811367
+		youtube_url[/^.*((v\/)|(embed\/)|(watch\?))\??v?=?([^\&\?]*).*/]
+		youtube_id = $5 
+	end
+	#Look into a different method for this 
+	%Q{<iframe title="YouTube video player" width="600px" height=450px" src="http://www.youtube.com/embed/#{ youtube_id }" frameborder="0" allowfullscreen></iframe>}
+  end
+  #Stopped here for the night 2 day 
+  
