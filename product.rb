@@ -128,7 +128,7 @@ class Product < ActiveRecord::Base
   end 
   
   #Stopped Here for the night 
-  
+ 
   def embed_video
 	vid_host = self.video_url.sub(/^https?\:\/\//, '').sub(/^www./,'').split('/')[0]
 	if vid_host == 'youtube.com' or vid_host == 'youtu.be'
@@ -160,4 +160,5 @@ class Product < ActiveRecord::Base
 	%Q{<iframe title="YouTube video player" width="600px" height=450px" src="http://www.youtube.com/embed/#{ youtube_id }" frameborder="0" allowfullscreen></iframe>}
   end
   #Stopped here for the night 2 day 
+    
   
