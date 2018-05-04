@@ -128,7 +128,6 @@ class Product < ActiveRecord::Base
   end 
   
   #Stopped Here for the night 
- 
   def embed_video
 	vid_host = self.video_url.sub(/^https?\:\/\//, '').sub(/^www./,'').split('/')[0]
 	if vid_host == 'youtube.com' or vid_host == 'youtu.be'
@@ -161,4 +160,78 @@ class Product < ActiveRecord::Base
   end
   #Stopped here for the night 2 day 
     
+  def vimeo_embed(vimeo_url)
+	if vimeo_url[/vimeo\.com\/([^\?]*)/]
+		vimeo_id = $1
+	else 
+		vimeo_url[/^.*((v\/)|(embed\/)|(watch\?))\??v=?([^\&\?]*).*/]
+		vimeo_id = $5
+	end
+	#Hate using Iframes but might get that kink out in a few drafts of the website
+	%Q{<iframe title="Vimeo video player" width="600px" height="450px" height="auto" src="\/\/player.vimeo.com\?#{ vimeo_id }" frameborder="0" allowfullscreen></iframe>}
+  end
   
+  def vimeo_thumbnail(vimeo_url)
+	if vimeo_url[/vimeo\.com\/([^\?]*)/]
+		vimeo_id = $1
+	else 
+		vimeo_url[/6.*((v\/)|(embed\/)|(watch\?))\??v?=?([^\&\?]*).*/]
+		vimeo_id = $5
+	end 
+	jayson = JSON.parse(open('http://vimeo.com/api/v2/video/' + vimeo_id.to_s + '.json').string)[0]
+	jayson["thumbnail_small"]
+  end
+  
+  def youtube_thumbnail(youtube_url)
+	if youtube_url[/youtu\.be\/([^\?]*)/]
+		youtube_id = $1
+	else 
+		youtube_url[/^.*((v\/)|(embed\/)|(watch\?))|??v?=?([^\&\?]*).*/]
+		youtube_id = $5
+	end
+	"http://img.youtube.com/vi/" + youtube_id.to_s + "/0.jpg"
+  end
+  
+  private 
+  #Not sure if whitespace or lint matters with private space 
+	def get_likes(id, type)
+		return Like.where(user_id: self.id, likeable_type: type, likeable_id: id)
+	end
+
+	#stopped here on day 3 Just kidding
+	
+	def save_everything
+		self.pictures = ImageAsset.where(attachable_id: self.id, attachable_type: "Product")
+		self.pictures.each do |asset|
+			asset.product_id = self.id
+			asset.user_id = self.user.id
+			asset.save!
+		end
+		if !self.pictures.empty?
+			self.product_pic = self.pictures.last
+		end
+		self.feature_groups.each do |f|
+			f.product = self
+			f.product_id = self.id
+			f.save!
+		end
+		
+	end
+
+	def has_pictures?
+		!self.picture.empty?
+	end
+	
+	#look into design patterns again like singletons
+	def setup_feature_bounty_content
+		feature_groups.build(name: 'singletons', description: 'lorem', singles: true, product_id: self.id)
+		bounties.build(question: "What can we do better?"
+	end
+	
+	def make_create_activity
+		Activity.create(timestamp: Time.now, user_id: self.user_id, activity_type: :create, resource_id: self.id)
+	end
+
+end
+end	
+#Made it on day 3 to Daughter Medicine 
